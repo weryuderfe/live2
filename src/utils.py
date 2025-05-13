@@ -3,25 +3,38 @@ import subprocess
 import os
 import time
 import streamlit as st
+import pkg_resources
 
 def check_dependencies(packages):
-    """Check if required packages are installed"""
+    """Check if required packages are installed with correct versions"""
     missing_packages = []
+    installed_packages = {pkg.key: pkg.version for pkg in pkg_resources.working_set}
     
     for package in packages:
-        try:
-            __import__(package.replace('-', '_').split('>=')[0].split('==')[0])
-        except ImportError:
+        pkg_name = package.split('>=')[0].split('==')[0].lower()
+        if pkg_name not in installed_packages:
             missing_packages.append(package)
     
-    if missing_packages:
-        return False
-    return True
+    return len(missing_packages) == 0
 
 def install_missing_dependencies(packages):
-    """Install missing dependencies"""
+    """Install missing dependencies using pip"""
     try:
-        subprocess.check_call([sys.executable, "-m", "pip", "install"] + packages)
+        # Upgrade pip first
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "--upgrade", "pip"])
+        
+        # Install each package individually to better handle errors
+        for package in packages:
+            try:
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", package],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE
+                )
+                st.success(f"Successfully installed {package}")
+            except subprocess.CalledProcessError as e:
+                st.error(f"Failed to install {package}: {str(e)}")
+                return False
         return True
     except Exception as e:
         st.error(f"Failed to install dependencies: {str(e)}")
