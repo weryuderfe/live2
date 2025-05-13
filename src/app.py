@@ -14,36 +14,40 @@ from components import (
 from streaming import StreamingManager
 from styles import apply_custom_styles
 
-# Ensure dependencies are installed
-required_packages = [
-    "streamlit", "streamlit-extras", "plotly", 
-    "pandas", "watchdog", "pillow"
-]
-
-if not check_dependencies(required_packages):
-    with st.spinner("Installing required dependencies..."):
-        install_missing_dependencies(required_packages)
-        st.experimental_rerun()
-
-# Initialize session state variables if they don't exist
-if 'theme' not in st.session_state:
-    st.session_state.theme = "dark"
-if 'streaming' not in st.session_state:
-    st.session_state.streaming = False
-if 'logs' not in st.session_state:
-    st.session_state.logs = []
-if 'stream_manager' not in st.session_state:
-    st.session_state.stream_manager = StreamingManager()
-if 'selected_tab' not in st.session_state:
-    st.session_state.selected_tab = "Stream"
-if 'analytics_data' not in st.session_state:
-    st.session_state.analytics_data = {
-        'views': [0, 10, 25, 40, 60, 75, 90, 85, 70, 65],
-        'likes': [0, 2, 5, 8, 12, 15, 18, 17, 14, 13],
-        'comments': [0, 1, 3, 5, 7, 8, 10, 9, 8, 7],
-    }
+def initialize_session_state():
+    """Initialize session state variables"""
+    if 'theme' not in st.session_state:
+        st.session_state.theme = "dark"
+    if 'streaming' not in st.session_state:
+        st.session_state.streaming = False
+    if 'logs' not in st.session_state:
+        st.session_state.logs = []
+    if 'stream_manager' not in st.session_state:
+        st.session_state.stream_manager = StreamingManager()
+    if 'selected_tab' not in st.session_state:
+        st.session_state.selected_tab = "Stream"
+    if 'analytics_data' not in st.session_state:
+        st.session_state.analytics_data = {
+            'views': [0, 10, 25, 40, 60, 75, 90, 85, 70, 65],
+            'likes': [0, 2, 5, 8, 12, 15, 18, 17, 14, 13],
+            'comments': [0, 1, 3, 5, 7, 8, 10, 9, 8, 7],
+        }
 
 def main():
+    # Ensure dependencies are installed
+    required_packages = [
+        "streamlit", "streamlit-extras", "plotly", 
+        "pandas", "watchdog", "pillow"
+    ]
+
+    if not check_dependencies(required_packages):
+        with st.spinner("Installing required dependencies..."):
+            install_missing_dependencies(required_packages)
+            st.rerun()
+    
+    # Initialize session state
+    initialize_session_state()
+    
     # Apply custom CSS styles
     apply_custom_styles()
     
